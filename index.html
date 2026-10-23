@@ -711,26 +711,6 @@
                 </article>
             </div>
         </section>
-        <section class="fade-up bg-[#703445] text-[#fffaf5] px-5 py-16">
-            <div class="max-w-lg mx-auto">
-                <p class="text-center text-xs uppercase tracking-[.25em] text-[#e6bd71]">Kindly respond at your earliest convenience
-                </p>
-                <h2 class="script text-5xl text-center mt-3">RSVP & wishes</h2>
-                <form id="form" class="space-y-5 mt-9"><label class="block text-sm">Guest name<input name="name"
-                            required placeholder="Your name"
-                            class="mt-2 w-full rounded-md bg-white/10 border border-[#d7a8a5] p-3 text-white placeholder:text-[#edcfcf]"></label><label
-                        class="block text-sm">Will you be joining us?<select required
-                            class="mt-2 w-full rounded-md bg-[#703445] border border-[#d7a8a5] p-3 text-white">
-                            <option value="" selected disabled>Select your reply</option>
-                            <option>Joyfully accepts</option>
-                            <option>Regretfully declines</option>
-                        </select></label><label class="block text-sm">Message / wishes<textarea
-                            placeholder="Leave the couple a note..." rows="4"
-                            class="mt-2 w-full rounded-md bg-white/10 border border-[#d7a8a5] p-3 text-white placeholder:text-[#edcfcf]"></textarea></label><button
-                        class="w-full rounded-full bg-[#e6bd71] py-3 text-xs uppercase tracking-[.16em] font-semibold text-[#703445]"
-                        type="submit">Send with love</button></form>
-            </div>
-        </section>
         <section class="fade-up px-5 py-16 max-w-3xl mx-auto" aria-labelledby="guestbook-title">
             <p class="text-center text-xs uppercase tracking-[.28em] text-[#bb8d45]">Leave a little love</p>
             <h2 id="guestbook-title" class="serif text-4xl text-center mt-3 mb-3">Guestbook</h2>
@@ -780,9 +760,6 @@
             ♫ Play Alfaz
         </button>
     </div>
-    <div id="toast"
-        class="toast fixed z-50 bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-[#fffaf5] border border-[#dcbf91] px-6 py-3 shadow-xl text-sm">
-        Thank you — your reply has been sent with love.</div>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <script>
@@ -827,7 +804,6 @@
             const visitorName = visitorNameInput.value.trim();
             if (!visitorName) return;
             document.querySelector('#guestbook-name').value = visitorName;
-            document.querySelector('#form [name="name"]').value = visitorName;
             guestWelcome.hidden = true;
             guestWelcome.setAttribute('aria-hidden', 'true');
             openInvite();
@@ -958,7 +934,7 @@
         function point(e) { const r = c.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top } }
         function erase(a, b) { ctx.globalCompositeOperation = 'destination-out'; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 54; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.beginPath(); ctx.arc(b.x, b.y, 27, 0, Math.PI * 2); ctx.fill() }
         function progress() { const pixels = ctx.getImageData(0, 0, c.width, c.height).data; let clear = 0, total = 0; for (let i = 3; i < pixels.length; i += 80) { total++; if (pixels[i] < 25) clear++ } if (clear / total > .35) { revealed = true; c.style.opacity = '0'; c.style.pointerEvents = 'none'; document.querySelector('#hint').textContent = 'The date is yours to keep. We cannot wait to celebrate with you!' } }
-        c.addEventListener('pointerdown', e => { if (revealed) return; drawing = true; last = point(e); c.setPointerCapture(e.pointerId); erase(last, last); e.preventDefault() }); c.addEventListener('pointermove', e => { if (!drawing || revealed) return; const now = point(e); erase(last, now); last = now; e.preventDefault() });['pointerup', 'pointercancel', 'pointerleave'].forEach(n => c.addEventListener(n, () => { if (drawing) { drawing = false; progress() } })); window.addEventListener('resize', () => { if (!revealed) setupScratch() }); const countdowns = [{ prefix: 'walima', date: '2026-11-08T19:00:00+05:00' }]; function tick() { countdowns.forEach(({ prefix, date }) => { let z = Math.max(0, Math.floor((new Date(date) - Date.now()) / 1000)), v = [Math.floor(z / 86400), Math.floor(z % 86400 / 3600), Math.floor(z % 3600 / 60), z % 60]; document.querySelector('#' + prefix + '-countdown').textContent = `${String(v[0]).padStart(2, '0')}d · ${String(v[1]).padStart(2, '0')}h · ${String(v[2]).padStart(2, '0')}m · ${String(v[3]).padStart(2, '0')}s` }) } tick(); setInterval(tick, 1000); const observer = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) } }), { threshold: .12 }); document.querySelectorAll('.fade-up').forEach(el => observer.observe(el)); document.querySelector('#form').addEventListener('submit', e => { e.preventDefault(); e.currentTarget.reset(); const t = document.querySelector('#toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 4000) });
+        c.addEventListener('pointerdown', e => { if (revealed) return; drawing = true; last = point(e); c.setPointerCapture(e.pointerId); erase(last, last); e.preventDefault() }); c.addEventListener('pointermove', e => { if (!drawing || revealed) return; const now = point(e); erase(last, now); last = now; e.preventDefault() });['pointerup', 'pointercancel', 'pointerleave'].forEach(n => c.addEventListener(n, () => { if (drawing) { drawing = false; progress() } })); window.addEventListener('resize', () => { if (!revealed) setupScratch() }); const countdowns = [{ prefix: 'walima', date: '2026-11-08T19:00:00+05:00' }]; function tick() { countdowns.forEach(({ prefix, date }) => { let z = Math.max(0, Math.floor((new Date(date) - Date.now()) / 1000)), v = [Math.floor(z / 86400), Math.floor(z % 86400 / 3600), Math.floor(z % 3600 / 60), z % 60]; document.querySelector('#' + prefix + '-countdown').textContent = `${String(v[0]).padStart(2, '0')}d · ${String(v[1]).padStart(2, '0')}h · ${String(v[2]).padStart(2, '0')}m · ${String(v[3]).padStart(2, '0')}s` }) } tick(); setInterval(tick, 1000); const observer = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) } }), { threshold: .12 }); document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     </script>
 </body>
 
