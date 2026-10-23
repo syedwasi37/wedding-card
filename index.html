@@ -725,7 +725,7 @@
                         class="guest-input mt-2 w-full rounded-md bg-white border border-[#d7c2a8] p-3"></textarea>
                 </label>
                 <button type="submit" class="love-button mt-4 w-full rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[.12em] text-white">Add to the guestbook 💌</button>
-                <p id="guestbook-status" class="mt-3 min-h-5 text-center text-xs text-[#703445]" aria-live="polite">Messages are saved in this browser on this device.</p>
+                <p id="guestbook-status" class="mt-3 min-h-5 text-center text-xs text-[#703445]" aria-live="polite">Loading shared wishes…</p>
             </form>
             <div id="guestbook-list" class="mt-6 space-y-3" aria-live="polite"></div>
         </section>
@@ -783,6 +783,8 @@
     <div id="toast"
         class="toast fixed z-50 bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-[#fffaf5] border border-[#dcbf91] px-6 py-3 shadow-xl text-sm">
         Thank you — your reply has been sent with love.</div>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <script>
         const env = document.querySelector('#env'), main = document.querySelector('#main');
         const musicToggle = document.querySelector('#music-toggle'), musicPanel = document.querySelector('#music-panel'), weddingAudio = document.querySelector('#wedding-audio');
@@ -834,32 +836,32 @@
         const guestbookForm = document.querySelector('#guestbook-form');
         const guestbookList = document.querySelector('#guestbook-list');
         const guestbookStatus = document.querySelector('#guestbook-status');
-        const guestbookStorageKey = 'wasif-mahnoor-walima-guestbook-v1';
-        // Set this to the HTTPS URL of the PHP API on Hostinger to enable the shared guestbook.
-        const guestbookApiUrl = 'https://any2convert.com/api/guestbook.php';
-        function readGuestbook() {
-            try {
-                const saved = JSON.parse(localStorage.getItem(guestbookStorageKey) || '[]');
-                return Array.isArray(saved) ? saved.filter(entry => typeof entry.name === 'string' && typeof entry.message === 'string') : [];
-            } catch { return [] }
-        }
+        const firebaseConfig = {
+            apiKey: 'AIzaSyAUAu93gSVuXsWdvFWAC-XG3JsuH4VdwU',
+            authDomain: 'wasi-wedding.firebaseapp.com',
+            projectId: 'wasi-wedding',
+            storageBucket: 'wasi-wedding.firebasestorage.app',
+            messagingSenderId: '490743169231',
+            appId: '1:490743169231:web:2164fce6ba531b4001f7ba'
+        };
+        const guestbookConfigured = true;
+        if (guestbookConfigured) firebase.initializeApp(firebaseConfig);
+        const guestbookDb = guestbookConfigured ? firebase.firestore() : null;
+        const guestbookCollection = guestbookDb?.collection('wedding_guestbook');
         async function renderGuestbook() {
+            if (!guestbookConfigured) {
+                guestbookStatus.textContent = 'Guestbook setup is not complete yet.';
+                return;
+            }
             let entries;
-            if (guestbookApiUrl) {
-                try {
-                    const response = await fetch(guestbookApiUrl, { headers: { Accept: 'application/json' } });
-                    if (!response.ok) throw new Error('Guestbook request failed');
-                    const result = await response.json();
-                    if (!Array.isArray(result.comments)) throw new Error('Invalid guestbook response');
-                    entries = result.comments;
-                    guestbookStatus.textContent = 'Messages are shared with everyone visiting the invitation.';
-                } catch {
-                    guestbookStatus.textContent = 'Could not load shared messages. Please try again in a moment.';
-                    return;
-                }
-            } else {
-                entries = readGuestbook();
-                guestbookStatus.textContent = 'Messages are saved in this browser on this device.';
+            try {
+                const snapshot = await guestbookCollection.orderBy('createdAt', 'desc').limit(30).get();
+                entries = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                guestbookStatus.textContent = 'Messages are shared with everyone visiting the invitation.';
+            } catch (error) {
+                console.error('Could not load shared wishes:', error);
+                guestbookStatus.textContent = 'Could not load shared messages. Please try again in a moment.';
+                return;
             }
             guestbookList.replaceChildren();
             if (!entries.length) {
@@ -879,10 +881,10 @@
                 message.className = 'text-sm mt-1 leading-relaxed whitespace-pre-wrap';
                 message.textContent = entry.message;
                 card.append(name, message);
-                if (entry.date) {
+                if (entry.createdAt?.toDate) {
                     const date = document.createElement('p');
                     date.className = 'text-[10px] mt-2 uppercase tracking-wider text-[#a95d70]';
-                    date.textContent = entry.createdAt || entry.date;
+                    date.textContent = entry.createdAt.toDate().toLocaleDateString();
                     card.append(date);
                 }
                 guestbookList.append(card);
@@ -893,38 +895,27 @@
             const name = document.querySelector('#guestbook-name').value.trim();
             const message = document.querySelector('#guestbook-message').value.trim();
             if (!name || !message) return;
-            if (guestbookApiUrl) {
-                const submitButton = guestbookForm.querySelector('button[type="submit"]');
-                submitButton.disabled = true;
-                guestbookStatus.textContent = 'Saving your message…';
-                try {
-                    const response = await fetch(guestbookApiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-                        body: JSON.stringify({ name, message })
-                    });
-                    if (!response.ok) throw new Error('Guestbook save failed');
-                    guestbookForm.reset();
-                    document.querySelector('#guestbook-name').value = name;
-                    guestbookStatus.textContent = 'Your wish has been added for everyone to see 💌';
-                    await renderGuestbook();
-                } catch {
-                    guestbookStatus.textContent = 'Could not save your message. Please try again.';
-                } finally {
-                    submitButton.disabled = false;
-                }
+            const submitButton = guestbookForm.querySelector('button[type="submit"]');
+            if (!guestbookConfigured) {
+                guestbookStatus.textContent = 'Guestbook setup is not complete yet.';
                 return;
             }
-            const entries = readGuestbook();
-            entries.unshift({ name: name.slice(0, 50), message: message.slice(0, 500), date: new Date().toLocaleDateString() });
+            submitButton.disabled = true;
+            guestbookStatus.textContent = 'Saving your message…';
             try {
-                localStorage.setItem(guestbookStorageKey, JSON.stringify(entries.slice(0, 100)));
+                await guestbookCollection.add({
+                    name: name.slice(0, 50),
+                    message: message.slice(0, 500),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
                 guestbookForm.reset();
                 document.querySelector('#guestbook-name').value = name;
-                guestbookStatus.textContent = 'Your wish has been added to the guestbook 💌';
-                renderGuestbook();
+                guestbookStatus.textContent = 'Your wish has been added for everyone to see 💌';
+                await renderGuestbook();
             } catch {
-                guestbookStatus.textContent = 'Could not save this message in the browser. Please try again.';
+                guestbookStatus.textContent = 'Could not save your message. Please check the Firebase setup.';
+            } finally {
+                submitButton.disabled = false;
             }
         });
         renderGuestbook();
