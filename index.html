@@ -386,34 +386,22 @@
         <section class="fade-up text-center px-5 py-16 max-w-3xl mx-auto">
             <p class="text-xs uppercase tracking-[.28em] text-[#bb8d45]">Counting down</p>
             <h2 class="serif text-3xl mt-3">Countdown to each celebration</h2>
-            <div class="space-y-8 mt-8">
-                <div>
-                    <h3 class="serif text-xl text-[#703445]">Mehndi · 6 November</h3>
-                    <div class="grid grid-cols-4 gap-2 sm:gap-4 mt-3">
-                        <div class="bg-white/70 rounded-lg py-4"><b id="mehndi-d" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Days</small></div>
-                        <div class="bg-white/70 rounded-lg py-4"><b id="mehndi-h" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Hours</small></div>
-                        <div class="bg-white/70 rounded-lg py-4"><b id="mehndi-m" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Mins</small></div>
-                        <div class="bg-white/70 rounded-lg py-4"><b id="mehndi-s" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Secs</small></div>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="serif text-xl text-[#703445]">Baraat · 7 November</h3>
-                    <div class="grid grid-cols-4 gap-2 sm:gap-4 mt-3">
-                        <div class="bg-white/70 rounded-lg py-4"><b id="baraat-d" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Days</small></div>
-                        <div class="bg-white/70 rounded-lg py-4"><b id="baraat-h" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Hours</small></div>
-                        <div class="bg-white/70 rounded-lg py-4"><b id="baraat-m" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Mins</small></div>
-                        <div class="bg-white/70 rounded-lg py-4"><b id="baraat-s" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Secs</small></div>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="serif text-xl text-[#703445]">Walima · 8 November</h3>
-                    <div class="grid grid-cols-4 gap-2 sm:gap-4 mt-3">
-                        <div class="bg-white/70 rounded-lg py-4"><b id="walima-d" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Days</small></div>
-                        <div class="bg-white/70 rounded-lg py-4"><b id="walima-h" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Hours</small></div>
-                        <div class="bg-white/70 rounded-lg py-4"><b id="walima-m" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Mins</small></div>
-                        <div class="bg-white/70 rounded-lg py-4"><b id="walima-s" class="serif text-3xl block text-[#a95d70]"></b><small class="uppercase tracking-widest">Secs</small></div>
-                    </div>
-                </div>
+            <div class="grid gap-3 mt-7 sm:grid-cols-3">
+                <article class="rounded-xl border border-[#dcbf91]/70 bg-white/60 px-3 py-4">
+                    <h3 class="serif text-lg text-[#703445]">Mehndi</h3>
+                    <p class="text-[11px] uppercase tracking-[.12em] text-[#a95d70]">6 November</p>
+                    <p id="mehndi-countdown" class="serif text-base mt-2 whitespace-nowrap text-[#a95d70]"></p>
+                </article>
+                <article class="rounded-xl border border-[#dcbf91]/70 bg-white/60 px-3 py-4">
+                    <h3 class="serif text-lg text-[#703445]">Baraat</h3>
+                    <p class="text-[11px] uppercase tracking-[.12em] text-[#a95d70]">7 November</p>
+                    <p id="baraat-countdown" class="serif text-base mt-2 whitespace-nowrap text-[#a95d70]"></p>
+                </article>
+                <article class="rounded-xl border border-[#dcbf91]/70 bg-white/60 px-3 py-4">
+                    <h3 class="serif text-lg text-[#703445]">Walima</h3>
+                    <p class="text-[11px] uppercase tracking-[.12em] text-[#a95d70]">8 November</p>
+                    <p id="walima-countdown" class="serif text-base mt-2 whitespace-nowrap text-[#a95d70]"></p>
+                </article>
             </div>
         </section>
         <section class="fade-up bg-white/60 px-6 py-16">
@@ -491,7 +479,7 @@
         function point(e) { const r = c.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top } }
         function erase(a, b) { ctx.globalCompositeOperation = 'destination-out'; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 54; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.beginPath(); ctx.arc(b.x, b.y, 27, 0, Math.PI * 2); ctx.fill() }
         function progress() { const pixels = ctx.getImageData(0, 0, c.width, c.height).data; let clear = 0, total = 0; for (let i = 3; i < pixels.length; i += 80) { total++; if (pixels[i] < 25) clear++ } if (clear / total > .35) { revealed = true; c.style.opacity = '0'; c.style.pointerEvents = 'none'; document.querySelector('#hint').textContent = 'The date is yours to keep. We cannot wait to celebrate with you!' } }
-        c.addEventListener('pointerdown', e => { if (revealed) return; drawing = true; last = point(e); c.setPointerCapture(e.pointerId); erase(last, last); e.preventDefault() }); c.addEventListener('pointermove', e => { if (!drawing || revealed) return; const now = point(e); erase(last, now); last = now; e.preventDefault() });['pointerup', 'pointercancel', 'pointerleave'].forEach(n => c.addEventListener(n, () => { if (drawing) { drawing = false; progress() } })); window.addEventListener('resize', () => { if (!revealed) setupScratch() }); const countdowns = [{ prefix: 'mehndi', date: '2026-11-06T00:00:00+05:00' }, { prefix: 'baraat', date: '2026-11-07T00:00:00+05:00' }, { prefix: 'walima', date: '2026-11-08T00:00:00+05:00' }]; function tick() { countdowns.forEach(({ prefix, date }) => { let z = Math.max(0, Math.floor((new Date(date) - Date.now()) / 1000)), v = [Math.floor(z / 86400), Math.floor(z % 86400 / 3600), Math.floor(z % 3600 / 60), z % 60]; ['d', 'h', 'm', 's'].forEach((unit, i) => document.querySelector('#' + prefix + '-' + unit).textContent = String(v[i]).padStart(2, '0')) }) } tick(); setInterval(tick, 1000); const observer = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) } }), { threshold: .12 }); document.querySelectorAll('.fade-up').forEach(el => observer.observe(el)); document.querySelector('#form').addEventListener('submit', e => { e.preventDefault(); e.currentTarget.reset(); const t = document.querySelector('#toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 4000) });
+        c.addEventListener('pointerdown', e => { if (revealed) return; drawing = true; last = point(e); c.setPointerCapture(e.pointerId); erase(last, last); e.preventDefault() }); c.addEventListener('pointermove', e => { if (!drawing || revealed) return; const now = point(e); erase(last, now); last = now; e.preventDefault() });['pointerup', 'pointercancel', 'pointerleave'].forEach(n => c.addEventListener(n, () => { if (drawing) { drawing = false; progress() } })); window.addEventListener('resize', () => { if (!revealed) setupScratch() }); const countdowns = [{ prefix: 'mehndi', date: '2026-11-06T00:00:00+05:00' }, { prefix: 'baraat', date: '2026-11-07T00:00:00+05:00' }, { prefix: 'walima', date: '2026-11-08T00:00:00+05:00' }]; function tick() { countdowns.forEach(({ prefix, date }) => { let z = Math.max(0, Math.floor((new Date(date) - Date.now()) / 1000)), v = [Math.floor(z / 86400), Math.floor(z % 86400 / 3600), Math.floor(z % 3600 / 60), z % 60]; document.querySelector('#' + prefix + '-countdown').textContent = `${String(v[0]).padStart(2, '0')}d · ${String(v[1]).padStart(2, '0')}h · ${String(v[2]).padStart(2, '0')}m · ${String(v[3]).padStart(2, '0')}s` }) } tick(); setInterval(tick, 1000); const observer = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) } }), { threshold: .12 }); document.querySelectorAll('.fade-up').forEach(el => observer.observe(el)); document.querySelector('#form').addEventListener('submit', e => { e.preventDefault(); e.currentTarget.reset(); const t = document.querySelector('#toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 4000) });
     </script>
 </body>
 
