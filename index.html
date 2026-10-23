@@ -467,12 +467,34 @@
             <p class="mt-3 text-xs uppercase tracking-[.18em]">With love, always</p>
         </footer>
     </main>
+    <div class="fixed bottom-20 right-4 z-40 text-right">
+        <div id="music-panel" class="hidden mb-2 rounded-xl border border-[#dcbf91] bg-[#fffaf5] p-2 shadow-xl text-left">
+            <p class="serif text-sm text-[#703445] px-1 pb-2">Alfaz · Wedding music</p>
+            <audio id="wedding-audio" controls preload="metadata" class="w-64 max-w-[75vw]">
+                <source src="./music/alfaz.mp3" type="audio/mpeg">
+                Your browser does not support audio playback.
+            </audio>
+        </div>
+        <button id="music-toggle" type="button" aria-expanded="false" aria-controls="music-panel"
+            class="rounded-full bg-[#703445] px-5 py-3 text-xs uppercase tracking-[.12em] text-white shadow-lg hover:bg-[#a95d70]">
+            ♫ Play Alfaz
+        </button>
+    </div>
     <div id="toast"
         class="toast fixed z-50 bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-[#fffaf5] border border-[#dcbf91] px-6 py-3 shadow-xl text-sm">
         Thank you — your reply has been sent with love.</div>
     <script>
         const env = document.querySelector('#env'), main = document.querySelector('#main');
-        function openInvite() { if (env.classList.contains('open')) return; env.classList.add('open'); setTimeout(() => { main.classList.remove('hidden'); requestAnimationFrame(setupScratch); main.animate([{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }], { duration: 750, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' }); main.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 520) }
+        const musicToggle = document.querySelector('#music-toggle'), musicPanel = document.querySelector('#music-panel'), weddingAudio = document.querySelector('#wedding-audio');
+        musicToggle.addEventListener('click', () => {
+            const isOpen = !musicPanel.classList.contains('hidden');
+            musicPanel.classList.toggle('hidden', isOpen);
+            musicToggle.setAttribute('aria-expanded', String(!isOpen));
+            musicToggle.textContent = isOpen ? '♫ Play Alfaz' : 'Close player';
+            if (isOpen) weddingAudio.pause();
+            else weddingAudio.play().catch(() => {});
+        });
+        function openInvite() { if (env.classList.contains('open')) return; env.classList.add('open'); musicPanel.classList.remove('hidden'); musicToggle.textContent = 'Close player'; musicToggle.setAttribute('aria-expanded', 'true'); weddingAudio.play().catch(() => { musicPanel.classList.add('hidden'); musicToggle.textContent = '♫ Play Alfaz'; musicToggle.setAttribute('aria-expanded', 'false') }); setTimeout(() => { main.classList.remove('hidden'); requestAnimationFrame(setupScratch); main.animate([{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }], { duration: 750, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' }); main.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 520) }
         env.addEventListener('click', openInvite); env.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInvite() } });
         const c = document.querySelector('#scratch'), ctx = c.getContext('2d', { willReadFrequently: true }); let drawing = false, revealed = false, last;
         function setupScratch() { const r = c.getBoundingClientRect(), dpr = Math.max(1, window.devicePixelRatio || 1); c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#b78a74'; ctx.fillRect(0, 0, r.width, r.height); ctx.fillStyle = 'rgba(255,250,245,.95)'; ctx.font = '600 14px Montserrat'; ctx.textAlign = 'center'; ctx.fillText('SCRATCH HERE', r.width / 2, r.height / 2) }
